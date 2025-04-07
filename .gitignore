@@ -1,0 +1,8 @@
+# Pastas do .NET
+bin/
+obj/
+
+# Arquivos temporários do Visual Studio
+*.user
+*.suo
+*.vs/
