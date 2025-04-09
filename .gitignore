@@ -6,3 +6,6 @@ obj/
 *.user
 *.suo
 *.vs/
+
+#pasta de logs
+logs/ 
