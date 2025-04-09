@@ -14,4 +14,4 @@ Implementação de um logger seguindo os requisitos do teste técnico.
 1. Clone o repositório:
    ```
    git clone https://github.com/mcbfk/SpectralSolutions-Logger.git\
-1. ```
+1.
