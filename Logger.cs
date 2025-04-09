@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace SpectralLogger
+namespace SpectralLogger // cria um container logico e unico 
 {
     public sealed class Logger : IDisposable
     {
