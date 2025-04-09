@@ -12,5 +12,4 @@ Implementação de um logger seguindo os requisitos do teste técnico.
 
 ## Como Usar
 1. Clone o repositório:
-   ```bash
    git clone https://github.com/seu-usuario/SpectralSolutions-Logger.git
