@@ -1,73 +1,73 @@
-﻿# Spectral Solutions - Logger em C#
+﻿# Spectral Solutions - C# Logger
 
-Implementação de um logger robusto em C# seguindo os requisitos do teste técnico.
+Implementation of a robust logger in C# following the technical test requirements.
 
-## Funcionalidades Implementadas
+## Implemented Features
 
-- ✅ **Singleton Design Pattern**: Garante uma única instância do logger em toda a aplicação.
-- ✅ **Logs Assíncronos**: Processamento em segundo plano usando `System.Threading.Channels`.
-- ✅ **Thread Safety**: Operações seguras em ambientes multi-thread.
-- ✅ **Níveis de Log**: `Debug`, `Info`, `Warning`, `Error` com filtragem configurável.
-- ✅ **Destinos Múltiplos**: Escrita no console (com cores) e em arquivo (`application.log`).
-- ✅ **Tratamento de Exceções**: Stack trace completo incluso nos logs de erro.
-- ✅ **Gerenciamento de Recursos**: Implementação de `IDisposable` para limpeza adequada.
+- ✅ **Singleton Design Pattern**: Ensures a single logger instance throughout the application.
+- ✅ **Asynchronous Logging**: Background processing using `System.Threading.Channels`.
+- ✅ **Thread Safety**: Safe operations in multi-threaded environments.
+- ✅ **Log Levels**: `Debug`, `Info`, `Warning`, `Error` with configurable filtering.
+- ✅ **Multiple Destinations**: Console output (with colors) and file writing (`application.log`).
+- ✅ **Exception Handling**: Complete stack trace included in error logs.
+- ✅ **Resource Management**: `IDisposable` implementation for proper cleanup.
 
-## Requisitos
+## Requirements
 
-- .NET 6.0 ou superior
-- Visual Studio 2022 ou VS Code com extensões C#
+- .NET 6.0 or higher
+- Visual Studio 2022 or VS Code with C# extensions
 
-## Como Usar
+## How to Use
 
-1. Clone o repositório:
+1. Clone the repository:
    ```bash
    git clone https://github.com/mcbfk/SpectralSolutions-Logger.git
    ```
 
-2. Adicione a referência ao projeto em sua solução.
+2. Add the project reference to your solution.
 
-3. Exemplo de uso:
+3. Usage example:
    ```csharp
    using SpectralLogger;
 
-   // Configurar nível de log
+   // Configure log level
    Logger.Instance.SetLogLevel(Logger.LogLevel.Debug);
 
-   // Logs síncronos
-   Logger.Instance.Log(Logger.LogLevel.Info, "Aplicação iniciada");
-   Logger.Instance.Log(Logger.LogLevel.Warning, "Memória está alta");
+   // Synchronous logs
+   Logger.Instance.Log(Logger.LogLevel.Info, "Application started");
+   Logger.Instance.Log(Logger.LogLevel.Warning, "Memory usage is high");
 
-   // Logs assíncronos
-   await Logger.Instance.LogAsync(Logger.LogLevel.Debug, "Operação assíncrona");
+   // Asynchronous logs
+   await Logger.Instance.LogAsync(Logger.LogLevel.Debug, "Asynchronous operation");
 
-   // Logs com exceção
+   // Logs with exception
    try {
-       // seu código aqui
+       // your code here
    } catch (Exception ex) {
-       Logger.Instance.Log(Logger.LogLevel.Error, "Erro na operação", ex);
+       Logger.Instance.Log(Logger.LogLevel.Error, "Operation failed", ex);
    }
 
-   // Garantir que todos os logs sejam processados
+   // Ensure all logs are processed
    await Logger.Instance.FlushAsync();
    ```
 
-## Estrutura do Projeto
+## Project Structure
 
-- `Logger.cs`: Implementação principal do logger
-- `Program.cs`: Exemplos de uso
-- `application.log`: Arquivo de log gerado durante a execução
+- `Logger.cs`: Main logger implementation
+- `Program.cs`: Usage examples
+- `application.log`: Log file generated during execution
 
-## Considerações de Design
+## Design Considerations
 
-- Uso de `Channel` para comunicação thread-safe entre produtores e consumidores
-- Processamento assíncrono para melhor performance
-- Cores diferentes no console para cada nível de log
-- Formatação padronizada de timestamp e mensagens
+- Use of `Channel` for thread-safe communication between producers and consumers
+- Asynchronous processing for better performance
+- Different colors in console for each log level
+- Standardized timestamp and message formatting
 
-## Melhorias Futuras
+## Future Improvements
 
-- [ ] Suporte a múltiplos destinos de log (ex: banco de dados, serviços externos)
-- [ ] Configuração via arquivo (appsettings.json)
-- [ ] Rotação de arquivos de log
-- [ ] Métricas de performance
-- [ ] Suporte a structured logging
+- [ ] Support for multiple log destinations (e.g., database, external services)
+- [ ] Configuration via file (appsettings.json)
+- [ ] Log file rotation
+- [ ] Performance metrics
+- [ ] Support for structured logging

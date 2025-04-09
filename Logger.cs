@@ -32,73 +32,73 @@ namespace SpectralLogger
         {
             try
             {
-                Console.WriteLine("Inicializando Logger...");
+                Console.WriteLine("Initializing Logger...");
 
-                // Define o caminho do arquivo de log na raiz do projeto
+                // Define the log file path in the project root
                 var projectDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));
                 var logsDirectory = Path.Combine(projectDirectory, "logs");
                 _logFilePath = Path.Combine(logsDirectory, "application.log");
-                Console.WriteLine($"Caminho do arquivo de log: {_logFilePath}");
+                Console.WriteLine($"Log file path: {_logFilePath}");
 
-                // Cria o diretório de logs se não existir
+                // Create logs directory if it doesn't exist
                 if (!Directory.Exists(logsDirectory))
                 {
-                    Console.WriteLine("Criando diretório de logs...");
+                    Console.WriteLine("Creating logs directory...");
                     Directory.CreateDirectory(logsDirectory);
-                    Console.WriteLine($"Diretório criado: {logsDirectory}");
+                    Console.WriteLine($"Directory created: {logsDirectory}");
                 }
 
-                // Inicializa o canal e o token de cancelamento
+                // Initialize channel and cancellation token
                 _logChannel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true });
                 _cts = new CancellationTokenSource();
 
-                // Tenta criar/abrir o arquivo de log
-                Console.WriteLine("Abrindo arquivo de log...");
+                // Try to create/open the log file
+                Console.WriteLine("Opening log file...");
                 try
                 {
                     _logFileWriter = new StreamWriter(_logFilePath, true) { AutoFlush = true };
-                    Console.WriteLine("StreamWriter criado com sucesso");
+                    Console.WriteLine("StreamWriter created successfully");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"ERRO ao criar StreamWriter: {ex.Message}");
+                    Console.WriteLine($"ERROR creating StreamWriter: {ex.Message}");
                     Console.WriteLine($"Stack Trace: {ex.StackTrace}");
                     throw;
                 }
 
-                // Verifica se o arquivo foi criado
+                // Verify if the file was created
                 if (File.Exists(_logFilePath))
                 {
-                    Console.WriteLine($"Arquivo de log criado com sucesso em: {_logFilePath}");
-                    Console.WriteLine($"Tamanho do arquivo: {new FileInfo(_logFilePath).Length} bytes");
+                    Console.WriteLine($"Log file created successfully at: {_logFilePath}");
+                    Console.WriteLine($"File size: {new FileInfo(_logFilePath).Length} bytes");
                     _isInitialized = true;
                 }
                 else
                 {
-                    Console.WriteLine($"AVISO: Arquivo de log não foi criado em: {_logFilePath}");
-                    Console.WriteLine("Tentando criar arquivo manualmente...");
+                    Console.WriteLine($"WARNING: Log file was not created at: {_logFilePath}");
+                    Console.WriteLine("Trying to create file manually...");
                     try
                     {
-                        File.WriteAllText(_logFilePath, "=== Início do arquivo de log ===\n");
-                        Console.WriteLine("Arquivo criado manualmente com sucesso");
+                        File.WriteAllText(_logFilePath, "=== Log file start ===\n");
+                        Console.WriteLine("File created manually successfully");
                         _isInitialized = true;
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"ERRO ao criar arquivo manualmente: {ex.Message}");
+                        Console.WriteLine($"ERROR creating file manually: {ex.Message}");
                         Console.WriteLine($"Stack Trace: {ex.StackTrace}");
-                        throw new FileNotFoundException($"Arquivo de log não foi criado em: {_logFilePath}", ex);
+                        throw new FileNotFoundException($"Log file was not created at: {_logFilePath}", ex);
                     }
                 }
 
-                // Inicia o processamento de logs
-                Console.WriteLine("Iniciando processamento de logs...");
+                // Start log processing
+                Console.WriteLine("Starting log processing...");
                 _ = ProcessLogQueueAsync(_cts.Token);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ERRO FATAL ao inicializar o logger:");
-                Console.WriteLine($"Mensagem: {ex.Message}");
+                Console.WriteLine($"FATAL ERROR initializing logger:");
+                Console.WriteLine($"Message: {ex.Message}");
                 Console.WriteLine($"Stack Trace: {ex.StackTrace}");
                 if (ex.InnerException != null)
                 {
@@ -114,7 +114,7 @@ namespace SpectralLogger
         {
             if (!_isInitialized)
             {
-                Console.WriteLine("AVISO: Logger não inicializado corretamente");
+                Console.WriteLine("WARNING: Logger not properly initialized");
                 return;
             }
 
@@ -125,12 +125,12 @@ namespace SpectralLogger
                 string logEntry = FormatLogEntry(level, message, ex);
                 if (!_logChannel.Writer.TryWrite(logEntry))
                 {
-                    Console.WriteLine("AVISO: Não foi possível escrever no canal de logs");
+                    Console.WriteLine("WARNING: Could not write to log channel");
                 }
             }
             catch (Exception logEx)
             {
-                Console.WriteLine($"Erro ao escrever log: {logEx.Message}");
+                Console.WriteLine($"Error writing log: {logEx.Message}");
                 Console.WriteLine($"Stack Trace: {logEx.StackTrace}");
             }
         }
@@ -139,7 +139,7 @@ namespace SpectralLogger
         {
             if (!_isInitialized)
             {
-                Console.WriteLine("AVISO: Logger não inicializado corretamente");
+                Console.WriteLine("WARNING: Logger not properly initialized");
                 return;
             }
 
@@ -150,7 +150,7 @@ namespace SpectralLogger
             }
             catch (Exception logEx)
             {
-                Console.WriteLine($"Erro ao escrever log assíncrono: {logEx.Message}");
+                Console.WriteLine($"Error writing async log: {logEx.Message}");
                 Console.WriteLine($"Stack Trace: {logEx.StackTrace}");
             }
         }
@@ -160,7 +160,7 @@ namespace SpectralLogger
             string logEntry = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{level}] {message}";
             if (ex != null)
             {
-                logEntry += $"\nExceção: {ex.GetType().FullName}: {ex.Message}\n{ex.StackTrace}\n";
+                logEntry += $"\nException: {ex.GetType().FullName}: {ex.Message}\n{ex.StackTrace}\n";
             }
             return logEntry;
         }
@@ -169,7 +169,7 @@ namespace SpectralLogger
         {
             try
             {
-                Console.WriteLine("Processador de logs iniciado");
+                Console.WriteLine("Log processor started");
                 await foreach (var logEntry in _logChannel.Reader.ReadAllAsync(token))
                 {
                     try
@@ -190,39 +190,39 @@ namespace SpectralLogger
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"ERRO ao escrever no arquivo: {ex.Message}");
+                            Console.WriteLine($"ERROR writing to file: {ex.Message}");
                             Console.WriteLine($"Stack Trace: {ex.StackTrace}");
 
-                            // Tentar reabrir o arquivo
+                            // Try to reopen the file
                             try
                             {
-                                Console.WriteLine("Tentando reabrir o arquivo de log...");
+                                Console.WriteLine("Trying to reopen log file...");
                                 _logFileWriter.Dispose();
                                 _logFileWriter = new StreamWriter(_logFilePath, true) { AutoFlush = true };
                                 await _logFileWriter.WriteLineAsync(logEntry);
                                 await _logFileWriter.FlushAsync();
-                                Console.WriteLine("Arquivo reaberto com sucesso");
+                                Console.WriteLine("File reopened successfully");
                             }
                             catch (Exception reopenEx)
                             {
-                                Console.WriteLine($"ERRO ao reabrir arquivo: {reopenEx.Message}");
+                                Console.WriteLine($"ERROR reopening file: {reopenEx.Message}");
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Erro ao processar entrada de log: {ex.Message}");
+                        Console.WriteLine($"Error processing log entry: {ex.Message}");
                         Console.WriteLine($"Stack Trace: {ex.StackTrace}");
                     }
                 }
             }
             catch (OperationCanceledException)
             {
-                Console.WriteLine("Processamento de logs cancelado");
+                Console.WriteLine("Log processing canceled");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro no processamento de logs: {ex.Message}");
+                Console.WriteLine($"Error in log processing: {ex.Message}");
                 Console.WriteLine($"Stack Trace: {ex.StackTrace}");
             }
         }
@@ -231,35 +231,30 @@ namespace SpectralLogger
         {
             if (!_isInitialized)
             {
-                Console.WriteLine("AVISO: Logger não inicializado corretamente");
+                Console.WriteLine("WARNING: Logger not properly initialized");
                 return;
             }
 
             try
             {
-                Console.WriteLine("Finalizando canal de logs...");
+                Console.WriteLine("Finalizing log channel...");
                 _logChannel.Writer.Complete();
                 await _logChannel.Reader.Completion;
 
-                Console.WriteLine("Salvando logs no arquivo...");
+                Console.WriteLine("Saving logs to file...");
                 await _logFileWriter.FlushAsync();
 
-                // Verificar se o arquivo existe e tem conteúdo
+                // Verify if file exists and has content
                 if (File.Exists(_logFilePath))
                 {
                     var fileInfo = new FileInfo(_logFilePath);
-                    Console.WriteLine($"Arquivo de log finalizado: {fileInfo.Length} bytes");
+                    Console.WriteLine($"Log file size: {fileInfo.Length} bytes");
+                    Console.WriteLine($"Last modified: {fileInfo.LastWriteTime}");
                 }
-                else
-                {
-                    Console.WriteLine("AVISO: Arquivo de log não existe após finalização");
-                }
-
-                Console.WriteLine("Logs finalizados com sucesso");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao finalizar logs: {ex.Message}");
+                Console.WriteLine($"Error during flush: {ex.Message}");
                 Console.WriteLine($"Stack Trace: {ex.StackTrace}");
             }
         }
@@ -268,15 +263,15 @@ namespace SpectralLogger
         {
             try
             {
-                Console.WriteLine("Dispondo recursos do logger...");
+                Console.WriteLine("Disposing logger...");
                 _cts.Cancel();
+                _cts.Dispose();
                 _logFileWriter?.Dispose();
-                GC.SuppressFinalize(this);
-                Console.WriteLine("Logger disposto com sucesso");
+                Console.WriteLine("Logger disposed successfully");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao dispor logger: {ex.Message}");
+                Console.WriteLine($"Error disposing logger: {ex.Message}");
                 Console.WriteLine($"Stack Trace: {ex.StackTrace}");
             }
         }

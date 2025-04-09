@@ -7,94 +7,94 @@ class Program
 {
     static async Task Main()
     {
-        Console.WriteLine("=== DIAGNÓSTICO DO LOGGER ===");
-        Console.WriteLine($"Diretório atual: {Environment.CurrentDirectory}");
-        Console.WriteLine($"Diretório base da aplicação: {AppDomain.CurrentDomain.BaseDirectory}");
+        Console.WriteLine("=== LOGGER DIAGNOSTICS ===");
+        Console.WriteLine($"Current directory: {Environment.CurrentDirectory}");
+        Console.WriteLine($"Application base directory: {AppDomain.CurrentDomain.BaseDirectory}");
 
-        // Verificar se o diretório de logs existe
+        // Check if logs directory exists
         var projectDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));
         var logsDirectory = Path.Combine(projectDirectory, "logs");
-        Console.WriteLine($"Diretório do projeto: {projectDirectory}");
-        Console.WriteLine($"Diretório de logs esperado: {logsDirectory}");
-        Console.WriteLine($"Diretório de logs existe: {Directory.Exists(logsDirectory)}");
+        Console.WriteLine($"Project directory: {projectDirectory}");
+        Console.WriteLine($"Expected logs directory: {logsDirectory}");
+        Console.WriteLine($"Logs directory exists: {Directory.Exists(logsDirectory)}");
 
-        // Verificar se o arquivo de log existe
+        // Check if log file exists
         var logFilePath = Path.Combine(logsDirectory, "application.log");
-        Console.WriteLine($"Caminho do arquivo de log: {logFilePath}");
-        Console.WriteLine($"Arquivo de log existe: {File.Exists(logFilePath)}");
+        Console.WriteLine($"Log file path: {logFilePath}");
+        Console.WriteLine($"Log file exists: {File.Exists(logFilePath)}");
 
-        // Verificar permissões
+        // Check permissions
         try
         {
             if (!Directory.Exists(logsDirectory))
             {
-                Console.WriteLine("Tentando criar diretório de logs...");
+                Console.WriteLine("Attempting to create logs directory...");
                 Directory.CreateDirectory(logsDirectory);
-                Console.WriteLine("Diretório de logs criado com sucesso");
+                Console.WriteLine("Logs directory created successfully");
             }
 
-            // Testar permissões de escrita
+            // Test write permissions
             var testFile = Path.Combine(logsDirectory, "test.txt");
-            File.WriteAllText(testFile, "Teste de permissões");
+            File.WriteAllText(testFile, "Permission test");
             File.Delete(testFile);
-            Console.WriteLine("Permissões de escrita OK");
+            Console.WriteLine("Write permissions OK");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"ERRO ao verificar permissões: {ex.Message}");
+            Console.WriteLine($"ERROR checking permissions: {ex.Message}");
             Console.WriteLine($"Stack Trace: {ex.StackTrace}");
         }
 
-        Console.WriteLine("\n=== INICIANDO LOGGER ===");
+        Console.WriteLine("\n=== STARTING LOGGER ===");
 
         using (Logger.Instance)
         {
             try
             {
-                Console.WriteLine("Configurando nível de log...");
+                Console.WriteLine("Setting log level...");
                 Logger.Instance.SetLogLevel(Logger.LogLevel.Debug);
 
-                Console.WriteLine("Testando logs...");
-                Logger.Instance.Log(Logger.LogLevel.Info, "Aplicação iniciada!");
-                Logger.Instance.Log(Logger.LogLevel.Debug, "Teste de log de debug");
-                Logger.Instance.Log(Logger.LogLevel.Warning, "Teste de log de warning");
+                Console.WriteLine("Testing logs...");
+                Logger.Instance.Log(Logger.LogLevel.Info, "Application started!");
+                Logger.Instance.Log(Logger.LogLevel.Debug, "Debug log test");
+                Logger.Instance.Log(Logger.LogLevel.Warning, "Warning log test");
 
                 try
                 {
-                    throw new InvalidOperationException("Erro simulado para teste");
+                    throw new InvalidOperationException("Simulated error for testing");
                 }
                 catch (Exception ex)
                 {
-                    Logger.Instance.Log(Logger.LogLevel.Error, "Falha na operação", ex);
+                    Logger.Instance.Log(Logger.LogLevel.Error, "Operation failed", ex);
                 }
 
-                Console.WriteLine("Testando logs assíncronos...");
-                await Logger.Instance.LogAsync(Logger.LogLevel.Warning, "Alerta: Memória está alta");
+                Console.WriteLine("Testing async logs...");
+                await Logger.Instance.LogAsync(Logger.LogLevel.Warning, "Alert: Memory usage is high");
 
-                Console.WriteLine("Finalizando logs...");
+                Console.WriteLine("Finalizing logs...");
                 await Logger.Instance.FlushAsync();
 
-                // Verificar novamente se o arquivo foi criado
-                Console.WriteLine("\n=== VERIFICAÇÃO FINAL ===");
-                Console.WriteLine($"Arquivo de log existe após operações: {File.Exists(logFilePath)}");
+                // Check if file was created
+                Console.WriteLine("\n=== FINAL VERIFICATION ===");
+                Console.WriteLine($"Log file exists after operations: {File.Exists(logFilePath)}");
                 if (File.Exists(logFilePath))
                 {
                     var fileInfo = new FileInfo(logFilePath);
-                    Console.WriteLine($"Tamanho do arquivo: {fileInfo.Length} bytes");
-                    Console.WriteLine($"Data de criação: {fileInfo.CreationTime}");
-                    Console.WriteLine($"Data de modificação: {fileInfo.LastWriteTime}");
+                    Console.WriteLine($"File size: {fileInfo.Length} bytes");
+                    Console.WriteLine($"Creation time: {fileInfo.CreationTime}");
+                    Console.WriteLine($"Last modified: {fileInfo.LastWriteTime}");
                 }
 
-                Console.WriteLine("Logs finalizados com sucesso!");
+                Console.WriteLine("Logs finalized successfully!");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro fatal: {ex}");
+                Console.WriteLine($"Fatal error: {ex}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 
-        Console.WriteLine("\nPressione qualquer tecla para sair...");
+        Console.WriteLine("\nPress any key to exit...");
         Console.ReadKey();
     }
 }
