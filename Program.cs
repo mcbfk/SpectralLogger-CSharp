@@ -23,7 +23,7 @@ class Program
         Console.WriteLine($"Log file path: {logFilePath}");
         Console.WriteLine($"Log file exists: {File.Exists(logFilePath)}");
 
-        // Check permissions
+        // Check permissio
         try
         {
             if (!Directory.Exists(logsDirectory))

@@ -8,6 +8,9 @@ namespace SpectralLogger
 {
     public sealed class Logger : IDisposable
     {
+        // Constante para rotação por tamanho (comentada)
+        // private const long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB em bytes
+        
         public enum LogLevel { Debug, Info, Warning, Error }
 
         private static readonly Lazy<Logger> _instance = new Lazy<Logger>(() => new Logger());
@@ -34,10 +37,14 @@ namespace SpectralLogger
             {
                 Console.WriteLine("Initializing Logger...");
 
-                // Define the log file path in the project root
+                // Define the log file path in the project root with timestamp
                 var projectDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));
                 var logsDirectory = Path.Combine(projectDirectory, "logs");
-                _logFilePath = Path.Combine(logsDirectory, "application.log");
+                
+                // Adiciona timestamp ao nome do arquivo
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                _logFilePath = Path.Combine(logsDirectory, $"application_{timestamp}.log");
+                
                 Console.WriteLine($"Log file path: {_logFilePath}");
 
                 // Create logs directory if it doesn't exist
@@ -157,13 +164,47 @@ namespace SpectralLogger
 
         private string FormatLogEntry(LogLevel level, string message, Exception? ex)
         {
-            string logEntry = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{level}] {message}";
+            string logEntry = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} [{level}] {message}";
             if (ex != null)
             {
                 logEntry += $"\nException: {ex.GetType().FullName}: {ex.Message}\n{ex.StackTrace}\n";
             }
             return logEntry;
         }
+
+        // Método para rotação por tamanho (comentado)
+        /*
+        private void CheckAndRotateLogFile()
+        {
+            if (File.Exists(_logFilePath))
+            {
+                var fileInfo = new FileInfo(_logFilePath);
+                if (fileInfo.Length >= MAX_FILE_SIZE)
+                {
+                    try
+                    {
+                        // Cria novo nome com data/hora
+                        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                        string newFileName = $"application_{timestamp}.log";
+                        string newFilePath = Path.Combine(Path.GetDirectoryName(_logFilePath), newFileName);
+                        
+                        // Fecha arquivo atual
+                        _logFileWriter?.Dispose();
+                        
+                        // Cria novo arquivo
+                        _logFileWriter = new StreamWriter(newFilePath, true) { AutoFlush = true };
+                        _logFilePath = newFilePath;
+                        
+                        Console.WriteLine($"Log file rotated: {newFilePath}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error rotating log file: {ex.Message}");
+                    }
+                }
+            }
+        }
+        */
 
         private async Task ProcessLogQueueAsync(CancellationToken token)
         {
@@ -174,56 +215,22 @@ namespace SpectralLogger
                 {
                     try
                     {
-                        var levelStart = logEntry.IndexOf('[') + 1;
-                        var levelEnd = logEntry.IndexOf(']');
-                        var levelStr = logEntry.Substring(levelStart, levelEnd - levelStart);
-                        var level = (LogLevel)Enum.Parse(typeof(LogLevel), levelStr);
-
-                        Console.ForegroundColor = _levelColors[(int)level];
-                        Console.WriteLine(logEntry);
-                        Console.ResetColor();
-
-                        try
-                        {
-                            await _logFileWriter.WriteLineAsync(logEntry);
-                            await _logFileWriter.FlushAsync();
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"ERROR writing to file: {ex.Message}");
-                            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
-
-                            // Try to reopen the file
-                            try
-                            {
-                                Console.WriteLine("Trying to reopen log file...");
-                                _logFileWriter.Dispose();
-                                _logFileWriter = new StreamWriter(_logFilePath, true) { AutoFlush = true };
-                                await _logFileWriter.WriteLineAsync(logEntry);
-                                await _logFileWriter.FlushAsync();
-                                Console.WriteLine("File reopened successfully");
-                            }
-                            catch (Exception reopenEx)
-                            {
-                                Console.WriteLine($"ERROR reopening file: {reopenEx.Message}");
-                            }
-                        }
+                        // Verificação de tamanho comentada
+                        // CheckAndRotateLogFile();
+                        
+                        // Escreve o log
+                        await _logFileWriter.WriteLineAsync(logEntry);
+                        await _logFileWriter.FlushAsync();
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Error processing log entry: {ex.Message}");
-                        Console.WriteLine($"Stack Trace: {ex.StackTrace}");
                     }
                 }
             }
             catch (OperationCanceledException)
             {
                 Console.WriteLine("Log processing canceled");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in log processing: {ex.Message}");
-                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
             }
         }
 
